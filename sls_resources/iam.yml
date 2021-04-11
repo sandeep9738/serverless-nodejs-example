@@ -1,0 +1,18 @@
+dynamodb_fullaccess_apptable:
+  Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:Scan
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:UpdateItem
+    - dynamodb:DeleteItem
+  Resource:
+    - Fn::GetAtt: [AppTable, Arn]
+    - Fn::Join: ['/', [{ Fn::GetAtt: ['AppTable', 'Arn'] }, 'index', '*']]
+
+ses_full_access:
+  Effect: Allow
+  Action:
+    - ses:*
+  Resource: '*'

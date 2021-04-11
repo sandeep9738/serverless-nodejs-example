@@ -1,0 +1,27 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "ContactUs Form Schema",
+  "required": ["name", "email", "phone", "message"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Fullname of the User"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone number",
+      "minLength": 10
+    },
+    "email": {
+      "type": "string",
+      "title": "Email address of the User",
+      "format": "email"
+    },
+    "message": {
+      "type": "string",
+      "title": "message of user"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "Seller Create Form Schema",
+  "required": ["fullname", "password", "email", "phone"],
+  "properties": {
+    "fullname": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "password": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string",
+      "minLength": 10
+    },
+    "setting": {
+      "type": "object"
+    }
+  }
+}

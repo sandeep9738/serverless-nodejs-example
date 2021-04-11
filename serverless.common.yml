@@ -1,0 +1,162 @@
+service: common
+app: ecom-solutions
+
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-iam-roles-per-function
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: ap-south-1
+  # apiKeys:
+  #   - value: ${env:DATASYNC_API_KEY}
+  endpointType: REGIONAL
+  apiGateway:
+    shouldStartNameWithService: true
+  environment:
+    APP_TABLE: app-${self:provider.stage}-table
+    JWT_SECRET: ${env:JWT_SECRET}
+    CONTACT_US_TO_ADDRS: 'no-reply@gmail.com'
+    # GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
+    # FACEBOOK_APP_ID : ${env:FACEBOOK_APP_ID}
+    # FACEBOOK_APP_SECRET : ${env:FACEBOOK_APP_SECRET}
+
+package:
+  exclude:
+    - apis.http
+    - sls_resources/**
+    - .history/**
+
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+
+custom:
+  IAM: ${file(sls_resources/iam.yml)}
+  SES_From_Email: 'no-reply@gmail.com'
+
+functions:
+  Welcome:
+    handler: common/Start.handler
+    timeout: 30
+    events:
+      - http:
+          path: /
+          method: GET
+          cors: true
+  ContactUs:
+    handler: common/ContactUs.handler
+    timeout: 30
+    events:
+      - http:
+          path: /contact-us
+          method: POST
+          cors: true
+          request:
+            schema:
+              application/json: ${file(schemas/ContactUsSchema.json)}
+    iamRoleStatements:
+      - ${self:custom.IAM.ses_full_access}
+    environment:
+      SES_FROM: ${self:custom.SES_From_Email}
+
+  UserLogin:
+    handler: common/UserLogin.handler
+    timeout: 30
+    events:
+      - http:
+          path: seller/{sellerId}/users/login
+          method: POST
+          cors: true
+          request:
+            schema:
+              application/json: ${file(schemas/SignInSchema.json)}
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+
+  SellerLogin:
+    handler: common/SellerLogin.handler
+    timeout: 30
+    events:
+      - http:
+          path: seller/login
+          method: POST
+          cors: true
+          request:
+            schema:
+              application/json: ${file(schemas/SignInSchema.json)}
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+
+  UserSignup:
+    handler: common/UserSignup.handler
+    timeout: 30
+    events:
+      - http:
+          path: seller/{sellerId}/users/signup
+          method: POST
+          cors: true
+          request:
+            schema:
+              application/json: ${file(schemas/SignUpSchema.json)}
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+  AuthFunc:
+    handler: common/Auth.handler
+    timeout: 30
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+  UsersData:
+    handler: common/UsersData.handler
+    timeout: 30
+    events:
+      - http:
+          path: seller/{sellerId}/users
+          method: GET
+          cors: true
+          authorizer:
+            name: AuthFunc
+            identitySource: method.request.header.x-access-token
+            type: token
+      - http:
+          path: seller/{sellerId}/users/{userId}
+          method: GET
+          cors: true
+          authorizer:
+            name: AuthFunc
+            identitySource: method.request.header.x-access-token
+            type: token
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+  Seller:
+    handler: common/SellerData.handler
+    timeout: 30
+    iamRoleStatements:
+      - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+    events:
+      - http:
+          path: seller
+          method: POST
+          cors: true
+          request:
+            schema:
+              application/json: ${file(schemas/SellerCreateSchema.json)}
+      - http:
+          path: seller/{sellerId}
+          method: GET
+          cors: true
+          authorizer:
+            name: AuthFunc
+            identitySource: method.request.header.x-access-token
+            type: token
+
+useDotenv: true
+
+resources:
+  Resources:
+    AppTable: ${file(sls_resources/dynamodb_tables.yml):AppTable}
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"

@@ -1,0 +1,18 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "SignIn Schema",
+  "required": ["email", "password"],
+  "properties": {
+    "email": {
+      "type": "string",
+      "title": "Email address of the User",
+      "format": "email"
+    },
+    "password": {
+      "type": "string",
+      "title": "Password of user"
+    }
+  }
+}

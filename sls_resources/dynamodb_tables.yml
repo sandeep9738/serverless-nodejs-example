@@ -1,0 +1,31 @@
+AppTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:provider.environment.APP_TABLE}
+    AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+      - AttributeName: email
+        AttributeType: S
+    KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
+    GlobalSecondaryIndexes:
+      - IndexName: email
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+      - IndexName: sk_data
+        KeySchema:
+          - AttributeName: sk
+            KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+    # Set the capacity to auto-scale
+    BillingMode: PAY_PER_REQUEST
