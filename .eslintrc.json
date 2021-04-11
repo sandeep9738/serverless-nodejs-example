@@ -1,0 +1,14 @@
+{
+  "extends": "@serverless/eslint-config/node",
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-console": "off",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "strict": "off"
+  }
+}

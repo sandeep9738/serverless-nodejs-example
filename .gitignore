@@ -1,0 +1,11 @@
+# package directories
+node_modules
+jspm_packages
+.history
+
+# Serverless directories
+.serverless
+
+.env
+*.http
+*.DS_Store
