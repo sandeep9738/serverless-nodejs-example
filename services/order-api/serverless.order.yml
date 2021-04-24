@@ -1,0 +1,43 @@
+service: order
+app: ecom-solutions
+
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-iam-roles-per-function
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: ap-south-1
+  endpointType: REGIONAL
+  apiGateway:
+    shouldStartNameWithService: true
+  environment:
+    APP_TABLE: app-${self:provider.stage}-table
+
+package:
+  exclude:
+    - apis.http
+    - sls_resources/**
+
+custom:
+  IAM: ${file(iam.yml)}
+  APP_TABLE_ARN: arn:aws:dynamodb:${self:provider.region}:*:table/app-${self:provider.stage}-table
+
+functions:
+  # CreateOrder:
+  #   handler: functions/CreateOrder.handler
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         path: seller/{sellerId}/order
+  #         method: POST
+  #         cors: true
+  #         authorizer: arn:aws:lambda:${self:provider.region}:*:function:custom-authorizer
+  #   iamRoleStatements:
+  #     - ${self:custom.IAM.dynamodb_fullaccess_apptable}
+ 
+
+useDotenv: true
